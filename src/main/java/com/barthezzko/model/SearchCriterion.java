@@ -150,7 +150,7 @@ public class SearchCriterion {
 		AnyFieldWithData = anyFieldWithData;
 	}
 	public String toJson() {
-		return "{From" + From + ", InboundDate:" + InboundDate
+		return "{From:" + From + ", InboundDate:" + InboundDate
 				+ ", To:" + To + ", OutboundDate:" + OutboundDate + ", MinADT:"
 				+ MinADT + ", MinCHD:" + MinCHD + ", MinINFT:" + MinINFT
 				+ ", SelectedADT:" + SelectedADT + ", SelectedCHD:"

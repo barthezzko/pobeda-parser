@@ -1,6 +1,6 @@
 package com.barthezzko.web;
 
-import com.barthezzko.service.PobedaService;
+import com.barthezzko.service.SearchResultService;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +17,7 @@ import java.io.IOException;
 public class Handler extends HttpServlet {
 
 
-    PobedaService pobedaService = new PobedaService();
+    SearchResultService pobedaService = new SearchResultService();
 
     @Override
     public void service(HttpServletRequest req, HttpServletResponse res) throws IOException {
