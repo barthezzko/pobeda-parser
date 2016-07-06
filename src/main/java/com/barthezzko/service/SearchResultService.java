@@ -176,14 +176,13 @@ public class SearchResultService {
 		Map<String, Integer> results = new HashMap<String, Integer>();
 		Connection.Response res = Jsoup
 				.connect(AVL_MONTH_URL)
-				.data("dateSelected", dateSelected, "indexTrip",
-						new Date().getTime() + "")
+				.data("dateSelected", dateSelected, "indexTrip", "1")
 				.userAgent(
 						"Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30")
 				.cookie("userSearchConfiguration", searchCriterion)
 				.method(Method.GET).execute();
 		Document doc = res.parse();
-		System.out.println("MONTH_AVL:" + AVL_MONTH_URL);
+		System.out.println("MONTH_AVL:" + AVL_MONTH_URL + " date " + dateSelected);
 		System.out.println(doc.html());
 		Elements els = doc.select("div [data-type=dayMonth]");
 		for (Element el : els) {
