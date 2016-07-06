@@ -1,0 +1,9 @@
+<queue-entries>
+    <!--Change the refresh rate of the default queue to 1/s-->
+    <queue>
+        <name>default</name>
+        <rate>1/s</rate>
+        <max-concurrent-requests>1</max-concurrent-requests>
+        <bucket-size>1</bucket-size>
+    </queue>
+</queue-entries>
