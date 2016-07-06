@@ -191,7 +191,7 @@ public class SearchResultService {
 			if (NOT_VALID_PRICES.contains(strPrice))
 				continue;
 			int price = Integer.valueOf(strPrice);
-			if (THRESHOLDS.get(toCity) != null
+			if (false && THRESHOLDS.get(toCity) != null
 					&& THRESHOLDS.get(toCity) <= price)
 				continue;
 			results.put(el.attr("data-date"), price);
