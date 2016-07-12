@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
-    <!--cron>
+    <cron>
         <url>/req?all=true</url>
         <description>Crawl all Pobeda</description>
-        <schedule>every 30 minutes</schedule>
-    </cron-->
+        <schedule>every 1 hour</schedule>
+    </cron>
 </cronentries>

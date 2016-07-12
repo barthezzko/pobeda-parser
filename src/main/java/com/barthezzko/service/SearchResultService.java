@@ -1,12 +1,16 @@
 package com.barthezzko.service;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
-import com.barthezzko.model.SearchCriterion;
 import org.jsoup.Connection;
 import org.jsoup.Connection.Method;
 import org.jsoup.Jsoup;
@@ -14,14 +18,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.util.logging.Logger;
+import com.barthezzko.model.SearchCriterion;
 
 /**
  * Hello world!
@@ -37,40 +34,9 @@ public class SearchResultService {
 
 	private static List<String> NOT_VALID_PRICES = Arrays.asList(new String[] {
 			"——", "Нет мест" });
-	private static final Integer[] MONTHS_TO_SCAN = { 3, 4, 5, 6, 7, 8, 9 };
-	private static final List<String> BAD_CITIES = Arrays.asList(new String[] {
-			"VKO", "", "{}", "TJM", "PEE", "KUF", "SCW", "KVX", "EGO", "NJC",
-			"CSY", "CEK", "UFA", "SGC", "IGT" });
+
 	private static final Logger logger = Logger
 			.getLogger(SearchResultService.class.getName());
-	private static final Map<String, Integer> THRESHOLDS = new HashMap<>();
-
-	static {
-		THRESHOLDS.put("ASF", 1500);
-		THRESHOLDS.put("ZLP", 2500);
-		THRESHOLDS.put("QDU", 2500);
-		THRESHOLDS.put("ROV", 1500);
-		THRESHOLDS.put("FMM", 2500);
-
-		THRESHOLDS.put("AER", 1500);
-		THRESHOLDS.put("KGD", 1500);
-		THRESHOLDS.put("ZMU", 2500);
-		THRESHOLDS.put("MCX", 1500);
-		THRESHOLDS.put("SVX", 1500);
-
-		THRESHOLDS.put("KRR", 1500);
-		THRESHOLDS.put("QLV", 2500);
-		THRESHOLDS.put("VOG", 1500);
-		THRESHOLDS.put("OGZ", 1500);
-		THRESHOLDS.put("LED", 1500);
-
-		THRESHOLDS.put("BGY", 2500);
-		THRESHOLDS.put("BTS", 2500);
-		THRESHOLDS.put("CGN", 2500);
-		THRESHOLDS.put("NAL", 1500);
-
-		THRESHOLDS.put("OVB", 2500);
-	}
 
 	private static String getDateForMonth(int month, boolean end) {
 		Date date = new Date();
@@ -83,22 +49,6 @@ public class SearchResultService {
 		return sdf.format(c.getTime());
 	}
 
-	public Map<String, Map<String, Integer>> invokeAll() throws Exception {
-		Set<String> cities = getAptList().keySet();
-		cities.removeAll(BAD_CITIES);
-		logger.info("looking for flights from/to " + cities);
-		Map<String, Map<String, Integer>> res = new HashMap<>();
-		for (String city : cities) {
-			if (BAD_CITIES.contains(city))
-				continue;
-			for (int mon : MONTHS_TO_SCAN) {
-				res.put("MOW_" + city + "_" + mon, invoke("VKO", city, mon));
-				Thread.sleep(5001);
-			}
-		}
-		return res;
-	}
-
 	public Map<String, Integer> invoke(String from, String to, int mon) {
 		try {
 			return invoke(buildCriterion(from, to, getDateForMonth(mon, false),
@@ -109,10 +59,7 @@ public class SearchResultService {
 		return new HashMap<>();
 	}
 
-	public static void main(String[] args) throws IOException {
-		logger.info(getAptList().toString());
-	}
-
+	
 	public Map<String, Integer> invoke(SearchCriterion searchCriterion)
 			throws Exception {
 		logger.info(searchCriterion.getFrom() + " > " + searchCriterion.getTo()
@@ -141,10 +88,9 @@ public class SearchResultService {
 				"VKO".equals(searchCriterion.getTo()) ? searchCriterion
 						.getFrom() : searchCriterion.getTo());
 		return rsMap;
-
 	}
 
-	private static Map<String, String> getAptList() throws IOException {
+	public static Map<String, String> getAptList() throws IOException {
 		Map<String, String> apts = new HashMap<String, String>();
 		Connection.Response res = Jsoup.connect(INITIAL_URL).method(Method.GET)
 				.execute();
@@ -167,7 +113,6 @@ public class SearchResultService {
 		searchCriterion.setTripType("RoundTrip");
 		searchCriterion.setCurrencyCode("RUB");
 		searchCriterion.setAnyFieldWithData("false");
-		System.out.println(searchCriterion.toJson());
 		return searchCriterion;
 	}
 
@@ -182,8 +127,8 @@ public class SearchResultService {
 				.cookie("userSearchConfiguration", searchCriterion)
 				.method(Method.GET).execute();
 		Document doc = res.parse();
-		System.out.println("MONTH_AVL:" + AVL_MONTH_URL + " date " + dateSelected);
-		System.out.println(doc.html());
+		System.out.println("MONTH_AVL:" + AVL_MONTH_URL + " date "
+				+ dateSelected);
 		Elements els = doc.select("div [data-type=dayMonth]");
 		for (Element el : els) {
 			String strPrice = el.select("div.price").html()
@@ -191,46 +136,10 @@ public class SearchResultService {
 			if (NOT_VALID_PRICES.contains(strPrice))
 				continue;
 			int price = Integer.valueOf(strPrice);
-			if (false && THRESHOLDS.get(toCity) != null
-					&& THRESHOLDS.get(toCity) <= price)
-				continue;
+			if (price < 1500)
 			results.put(el.attr("data-date"), price);
 		}
 		logger.info("fetched " + results.size() + " entries");
 		return results;
-	}
-
-	public static void email(Map<String, Map<String, Integer>> map) {
-		Properties props = new Properties();
-		Session session = Session.getDefaultInstance(props, null);
-		String msgBody = "Job Result";
-		for (String setKey : map.keySet()) {
-			msgBody += "<br/>----------------------<br/>" + setKey
-					+ "<br/>-------------------";
-			Map<String, Integer> flights = map.get(setKey);
-			for (String date : flights.keySet()) {
-				msgBody += "<br/><b>" + date + "</b> " + flights.get(date);
-			}
-		}
-
-		try {
-			Message msg = new MimeMessage(session);
-			msg.setFrom(new InternetAddress(
-					"mailer@pobeda-aero.appspotmail.com", "pobeda-aero mailer"));
-			msg.addRecipient(Message.RecipientType.TO, new InternetAddress(
-					"barthezzko@gmail.com", "Mikhail Baytsurov"));
-			msg.setSubject("Results from: " + new Date() + " (" + map.size()
-					+ ")");
-			msg.setContent(msgBody, "text/html; charset=utf-8");
-			Transport.send(msg);
-
-		} catch (AddressException e) {
-			logger.info(e.getMessage());
-		} catch (MessagingException e) {
-			logger.info(e.getMessage());
-		} catch (UnsupportedEncodingException e) {
-			logger.info(e.getMessage());
-		}
-
 	}
 }
