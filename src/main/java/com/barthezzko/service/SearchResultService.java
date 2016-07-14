@@ -19,6 +19,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.barthezzko.model.SearchCriterion;
+import com.barthezzko.valid.CommonValidators;
 
 /**
  * Hello world!
@@ -26,8 +27,6 @@ import com.barthezzko.model.SearchCriterion;
  */
 public class SearchResultService {
 
-	private final static SimpleDateFormat sdf = new SimpleDateFormat(
-			"yyyy-MM-dd");
 	private static String AVL_MONTH_URL = "https://booking.pobeda.aero/AjaxMonthLowFareAvailaibility.aspx";
 	private static String INITIAL_URL = "http://www.pobeda.aero/";
 	private static String SEARCH_URL = "https://booking.pobeda.aero/ExternalSearch.aspx?marketType=%s&fromStation=%s&toStation=%s&beginDate=%s&endDate=%s&adultCount=1&childrenCount=0&infantCount=0&currencyCode=RUB&utm_source=pobeda&culture=ru-RU";
@@ -46,7 +45,7 @@ public class SearchResultService {
 		c.set(Calendar.DAY_OF_MONTH,
 				end ? c.getActualMaximum(Calendar.DAY_OF_MONTH) : c
 						.getActualMinimum(Calendar.DAY_OF_MONTH));
-		return sdf.format(c.getTime());
+		return new SimpleDateFormat("yyyy-MM-dd").format(c.getTime());
 	}
 
 	public Map<String, Integer> invoke(String from, String to, int mon) {
@@ -59,7 +58,6 @@ public class SearchResultService {
 		return new HashMap<>();
 	}
 
-	
 	public Map<String, Integer> invoke(SearchCriterion searchCriterion)
 			throws Exception {
 		logger.info(searchCriterion.getFrom() + " > " + searchCriterion.getTo()
@@ -69,7 +67,7 @@ public class SearchResultService {
 				searchCriterion.getTripType(), searchCriterion.getFrom(),
 				searchCriterion.getTo(), searchCriterion.getInboundDate(),
 				searchCriterion.getOutboundDate());
-		logger.info("SEARCH URL: " + searchUrl);
+		logger.fine("SEARCH URL: " + searchUrl);
 		Map<String, String> cookies = Jsoup
 				.connect(searchUrl)
 				.data("t", new Date().getTime() + "")
@@ -81,7 +79,7 @@ public class SearchResultService {
 		String safeString = "_ga=1; _ym_uid=1; ASP.NET_SessionId=" + sessionId
 				+ "; skysales=" + skysales + "; _ym_isad=1;";
 		safeString += URLEncoder.encode(searchCriterion.toJson(), "UTF-8");
-		logger.info("INJECT COOKIES: " + cookies.toString());
+		logger.fine("INJECT COOKIES: " + cookies.toString());
 		Map<String, Integer> rsMap = fetch(
 				safeString,
 				searchCriterion.getOutboundDate(),
@@ -95,9 +93,11 @@ public class SearchResultService {
 		Connection.Response res = Jsoup.connect(INITIAL_URL).method(Method.GET)
 				.execute();
 		Document doc = res.parse();
-		Elements els = doc.select(".form-dropoutList__item");
+		Elements els = doc.select("div.form-dropoutList__item");
 		for (Element el : els) {
-			apts.put(el.attr("data-iata"), el.select("span").html());
+			if (CommonValidators.validIataCode(el.attr("data-iata"))) {
+				apts.put(el.attr("data-iata"), el.select("span").html());
+			}
 		}
 		return apts;
 	}
@@ -127,7 +127,7 @@ public class SearchResultService {
 				.cookie("userSearchConfiguration", searchCriterion)
 				.method(Method.GET).execute();
 		Document doc = res.parse();
-		System.out.println("MONTH_AVL:" + AVL_MONTH_URL + " date "
+		logger.fine("MONTH_AVL:" + AVL_MONTH_URL + " date "
 				+ dateSelected);
 		Elements els = doc.select("div [data-type=dayMonth]");
 		for (Element el : els) {
@@ -136,10 +136,10 @@ public class SearchResultService {
 			if (NOT_VALID_PRICES.contains(strPrice))
 				continue;
 			int price = Integer.valueOf(strPrice);
-			if (price < 1500)
-			results.put(el.attr("data-date"), price);
+			if (price < 5000)
+				results.put(el.attr("data-date"), price);
 		}
-		logger.info("fetched " + results.size() + " entries");
+		logger.info(toCity +  ": fetched " + results.size() + " entries");
 		return results;
 	}
 }

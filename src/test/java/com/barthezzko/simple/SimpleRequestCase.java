@@ -16,13 +16,13 @@ public class SimpleRequestCase {
 		SearchResultService srs = new SearchResultService();
 		System.out.println(srs.invoke("VKO", "CGN", 8));
 	}
+	
 	@Test
 	public void fetchCities() throws IOException{
-		SearchResultService srs = new SearchResultService();
-		Map<String, String> apts = srs.getAptList();
+		Map<String, String> apts = SearchResultService.getAptList();
 		for (String c: apts.keySet()){
 			System.out.println(c + ": " + apts.get(c));
 		}
-		assertEquals(90, apts.size());
+		assertEquals(42, apts.size());
 	}
 }
