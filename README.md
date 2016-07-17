@@ -1,4 +1,4 @@
-appengine-skeleton
-=============================
+pobeda.aero automatic fetching-mailing tool
+===========================================
 
-This is a generated application from the appengine-skeleton archetype.
+And something else maybe

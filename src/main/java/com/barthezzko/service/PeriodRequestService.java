@@ -1,11 +1,16 @@
 package com.barthezzko.service;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.barthezzko.model.JobInfo;
+import com.barthezzko.util.Utils;
 
 public class PeriodRequestService {
 
@@ -19,6 +24,29 @@ public class PeriodRequestService {
 	
 	
 	private SearchResultService service = new SearchResultService();
+	
+	public void invokeInteresting(){
+		JobInfo jobInfo = new JobInfo();
+		jobInfo.id = 1;
+		jobInfo.jobName = "interesting";
+		jobInfo.startDate = new Date();
+		Map<String, Map<String, Integer>> res = new HashMap<>();
+		Map<String, Integer>cityRes = new HashMap<>();
+		for (String city : Utils.INTERESTING_CITIES){
+			cityRes = service.invoke(city, "VKO", 9);
+			if (cityRes.size()>0){
+				res.put(city, cityRes);
+			}
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				logger.log(Level.SEVERE, e.getMessage());
+			}
+		}
+		if (res.size()>0){
+			MailerService.email(res, jobInfo);
+		}
+	}
 	
 	public Map<String, Map<String, Integer>> invokeAll() throws Exception {
 		Set<String> cities = SearchResultService.getAptList().keySet();
