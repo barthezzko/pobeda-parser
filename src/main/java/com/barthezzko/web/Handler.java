@@ -35,7 +35,7 @@ public class Handler extends HttpServlet {
 			if (cities != null && cities.length > 0) {
 				for (String city : cities) {
 					logger.info("Fetching info for " + city);
-					res2.putAll(pobedaService.invoke(city, "VKO", 9));
+					res2.putAll(pobedaService.invoke(city, "VKO", 10));
 					try {
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {

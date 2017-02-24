@@ -18,7 +18,7 @@ public class ProdTest {
 	@Test
 	public void testFullCitiesToVKO() throws InterruptedException{
 		for (String city : Utils.INTERESTING_CITIES){
-			srs.invoke(city, "VKO", 9);
+			srs.invoke(city, "VKO", 11);
 			Thread.sleep(5000);
 		}
 	}

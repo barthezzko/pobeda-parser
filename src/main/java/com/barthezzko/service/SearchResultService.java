@@ -136,8 +136,7 @@ public class SearchResultService {
 			if (NOT_VALID_PRICES.contains(strPrice))
 				continue;
 			int price = Integer.valueOf(strPrice);
-			if (price < 1500)
-				results.put(el.attr("data-date"), price);
+			results.put(el.attr("data-date"), price);
 		}
 		logger.info(toCity +  ": fetched " + results.size() + " entries");
 		return results;

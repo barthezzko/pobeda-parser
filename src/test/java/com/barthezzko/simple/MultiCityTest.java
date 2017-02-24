@@ -13,7 +13,7 @@ public class MultiCityTest {
 		String[] cities = {"CGN", "BGY", "FMM"};
 		SearchResultService srs = new SearchResultService();
 		for(String city: cities){
-			srs.invoke(city, "VKO", 9);
+			srs.invoke(city, "VKO", 12);
 		}
 	}
 	

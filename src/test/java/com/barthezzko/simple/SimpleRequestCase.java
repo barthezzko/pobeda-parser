@@ -14,7 +14,7 @@ public class SimpleRequestCase {
 	@Test
 	public void request(){
 		SearchResultService srs = new SearchResultService();
-		System.out.println(srs.invoke("VKO", "CGN", 8));
+		System.out.println(srs.invoke("VKO", "CGN", 11));
 	}
 	
 	@Test
